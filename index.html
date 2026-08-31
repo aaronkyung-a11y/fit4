@@ -1,3 +1,4 @@
+<!-- fit4 — 4주 시작 프로그램 · v0.5 · 2026-08-31 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -100,6 +101,8 @@ ul{list-style:none;margin:0;padding:0}
 .reset{color:var(--b);font-size:12px;text-decoration:underline;text-underline-offset:3px}
 .hint{margin:10px 2px 0;font-size:12.5px;color:var(--b);line-height:1.6}
 .settings #range{font-variant-numeric:tabular-nums}
+.ver{margin:10px 2px 0;font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.ver button{font-size:11.5px;color:var(--mute);text-decoration:underline;text-underline-offset:3px}
 .foot{margin:12px 2px 0;font-size:12px;color:var(--mute);line-height:1.6}
 @media (prefers-reduced-motion:reduce){.cell{transition:none}}
 </style>
@@ -124,10 +127,14 @@ ul{list-style:none;margin:0;padding:0}
   </div>
   <p class="hint" id="hint"></p>
   <p class="foot">세트 사이 60초 휴식 · 무릎이 안쪽으로 모이거나 허리가 말리면 개수를 줄이세요</p>
+  <p class="ver"><span id="ver"></span> · <button id="upd">업데이트 확인</button></p>
 </div>
 
 <script src="config.js"></script>
 <script>
+const APP_VERSION = "0.5";
+const APP_DATE = "2026-08-31";
+
 /* ═══ 프로그램 정의 ═══════════════════════════════ */
 const DAY = ["월","화","수","목","금","토","일"];
 const SCHED = ["근력","걷기","근력","걷기","근력","가벼운 걷기","휴식"];
@@ -482,6 +489,24 @@ window.addEventListener("online", () => pull(false));
 load();
 jump();
 if(linked()){ pull(false); startPolling(); }
+
+document.getElementById("ver").textContent = "v" + APP_VERSION + " · " + APP_DATE;
+
+/* 캐시와 서비스워커를 지우고 새로 받습니다.
+   폰에 옛날 화면이 계속 뜰 때 쓰는 탈출구입니다. */
+document.getElementById("upd").onclick = async () => {
+  try{
+    if("serviceWorker" in navigator){
+      const rs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(rs.map(r => r.unregister()));
+    }
+    if("caches" in window){
+      const ks = await caches.keys();
+      await Promise.all(ks.map(k => caches.delete(k)));
+    }
+  }catch{}
+  location.reload();
+};
 
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js").catch(() => {});
