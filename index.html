@@ -40,7 +40,10 @@ h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.8px}
 .cell.rest{background:transparent;border-color:transparent;color:var(--rest)}
 .cell.sel{border:2px solid var(--ink)}
 .cell.today{box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--ink)}
-.cell .d{font-size:11px;font-weight:600;letter-spacing:-.2px}
+.cell{gap:2px}
+.cell .d{font-size:9.5px;font-weight:600;letter-spacing:-.2px;color:var(--mute);line-height:1}
+.cell.rest .d{color:var(--rest)}
+.cell .n{font-size:13px;font-weight:700;letter-spacing:-.3px;line-height:1;font-variant-numeric:tabular-nums}
 .bars{display:flex;gap:3px}
 .bar{display:block;width:9px;height:3.5px;border-radius:2px}
 
@@ -95,7 +98,9 @@ ul{list-style:none;margin:0;padding:0}
 .settings input[type=date]{padding:6px 8px;font-size:12.5px;border:1px solid var(--line);
   border-radius:8px;background:var(--card);color:var(--ink);font-family:inherit}
 .reset{color:var(--b);font-size:12px;text-decoration:underline;text-underline-offset:3px}
-.foot{margin:16px 2px 0;font-size:12px;color:var(--mute);line-height:1.6}
+.hint{margin:10px 2px 0;font-size:12.5px;color:var(--b);line-height:1.6}
+.settings #range{font-variant-numeric:tabular-nums}
+.foot{margin:12px 2px 0;font-size:12px;color:var(--mute);line-height:1.6}
 @media (prefers-reduced-motion:reduce){.cell{transition:none}}
 </style>
 </head>
@@ -114,8 +119,10 @@ ul{list-style:none;margin:0;padding:0}
 
   <div class="settings">
     <label>시작일 <input type="date" id="start"></label>
+    <span id="range"></span>
     <button class="reset" id="reset">이 기기 기록 지우기</button>
   </div>
+  <p class="hint" id="hint"></p>
   <p class="foot">세트 사이 60초 휴식 · 무릎이 안쪽으로 모이거나 허리가 말리면 개수를 줄이세요</p>
 </div>
 
@@ -146,7 +153,7 @@ const ACTIVE = [...Array(28).keys()].filter(i => SCHED[i%7] !== "휴식");
 /* ═══ 상태 ═══════════════════════════════════════ */
 const KEY = "fit4.v2";          // 기록 (v0.2와 호환)
 const DEVKEY = "fit4.device.v1"; // 이 기기 설정
-const fresh = () => ({A:{name:"",days:{}}, B:{name:"",days:{}}, start:null});
+const fresh = () => ({A:{name:"",days:{}}, B:{name:"",days:{}}, start:null, startAt:0});
 const freshDev = () => ({room:null, me:"A"});
 
 let S, DEV, who = "A", sel = 0;
@@ -180,6 +187,12 @@ function isoMonday(dt){
   const p = n => String(n).padStart(2,"0");
   return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
 }
+function dateOf(i){
+  const d = new Date(S.start+"T00:00:00");
+  d.setDate(d.getDate()+i);
+  return d;
+}
+const fmt = d => (d.getMonth()+1)+"월 "+d.getDate()+"일";
 function todayIndex(){
   const s = new Date(S.start+"T00:00:00"), n = new Date(); n.setHours(0,0,0,0);
   const diff = Math.round((n-s)/86400000);
@@ -231,7 +244,11 @@ function mergeRemote(remote, wholesale){
   }
   const other = DEV.me === "A" ? "B" : "A";
   if(remote[other]) S[other] = remote[other];
-  if(remote.start) S.start = remote.start;
+  // 시작일은 더 나중에 바꾼 쪽을 따릅니다.
+  // (예전에는 무조건 서버 값을 따라가서, 방금 바꾼 시작일이 되돌아갔습니다)
+  if(remote.start && (remote.startAt || 0) >= (S.startAt || 0)){
+    S.start = remote.start; S.startAt = remote.startAt || 0;
+  }
 }
 
 async function pull(wholesale){
@@ -284,7 +301,10 @@ function render(){
     b.className = "cell" + (rest?" rest":"") + (d===sel?" sel":"") + (d===t?" today":"");
     b.setAttribute("aria-label", (Math.floor(d/7)+1)+"주차 "+DAY[d%7]+"요일");
     b.setAttribute("aria-pressed", d===sel);
-    b.innerHTML = '<span class="d">'+DAY[d%7]+"</span>" + (rest ? "" :
+    const dt = dateOf(d);
+    b.innerHTML = '<span class="d">'+DAY[d%7]+"</span>"
+      + '<span class="n">'+(dt.getDate()===1 ? (dt.getMonth()+1)+"/1" : dt.getDate())+"</span>"
+      + (rest ? "" :
       '<span class="bars">'
       + '<i class="bar" style="background:var(--a);opacity:'+(0.12+ratio(S.A,d)*0.88).toFixed(2)+'"></i>'
       + '<i class="bar" style="background:var(--b);opacity:'+(0.12+ratio(S.B,d)*0.88).toFixed(2)+'"></i>'
@@ -311,6 +331,7 @@ function render(){
   renderCard();
   renderSync();
   document.getElementById("start").value = S.start;
+  document.getElementById("range").textContent = fmt(dateOf(0)) + " – " + fmt(dateOf(27));
 }
 
 function renderCard(){
@@ -436,8 +457,19 @@ function jump(){
 /* ═══ 이벤트 ═════════════════════════════════════ */
 document.getElementById("start").onchange = e => {
   if(!e.target.value) return;
-  S.start = isoMonday(e.target.value + "T00:00:00");
+  const picked = e.target.value;
+  const snapped = isoMonday(picked + "T00:00:00");
+  const same = snapped === S.start;
+  S.start = snapped; S.startAt = Date.now();
   save(); queuePush(); jump();
+  if(snapped !== picked){
+    const hint = document.getElementById("hint");
+    hint.textContent = same
+      ? "프로그램은 월요일부터 시작합니다. 고른 날짜가 이미 이 주에 있어 시작일은 그대로입니다."
+      : "프로그램은 월요일부터 시작합니다. 고른 날짜가 속한 주의 월요일로 맞췄습니다.";
+    clearTimeout(hint._t);
+    hint._t = setTimeout(() => { hint.textContent = ""; }, 6000);
+  }
 };
 document.getElementById("reset").onclick = () => {
   if(!confirm("이 기기의 기록을 지웁니다. 되돌릴 수 없습니다.")) return;
