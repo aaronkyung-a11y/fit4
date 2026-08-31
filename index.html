@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>4주 시작 프로그램</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#EDEFE9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="4주 운동">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --paper:#EDEFE9; --card:#F7F8F4; --ink:#1B2420;
+  --mute:#8D958C; --line:#D6DAD1;
+  --a:#17605B; --b:#8C3D6B; --rest:#C3C8BE;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;
+  padding:calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 40px);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:440px;margin:0 auto}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.8px}
+.sub{margin:7px 0 0;font-size:13px;color:var(--mute);line-height:1.55}
+
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:22px}
+.cell{position:relative;aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;
+  background:var(--card);border:1px solid var(--line);transition:transform .12s ease}
+.cell:active{transform:scale(.93)}
+.cell.rest{background:transparent;border-color:transparent;color:var(--rest)}
+.cell.sel{border:2px solid var(--ink)}
+.cell.today{box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--ink)}
+.cell .d{font-size:11px;font-weight:600;letter-spacing:-.2px}
+.bars{display:flex;gap:3px}
+.bar{display:block;width:9px;height:3.5px;border-radius:2px}
+
+.legend{display:flex;gap:16px;margin:12px 2px 0;font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:8px;height:8px;border-radius:3px;margin-right:6px}
+
+.switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:22px 0 12px;
+  padding:4px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.switch button{padding:9px 0;border-radius:9px;font-size:14px;font-weight:700;color:var(--mute)}
+.switch button.on{color:#fff}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px 16px}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
+.eyebrow{margin:0;font-size:12.5px;color:var(--mute);font-weight:600}
+h2{margin:3px 0 0;font-size:21px;font-weight:800;letter-spacing:-.5px}
+.name{width:80px;padding:6px 9px;font-size:13px;text-align:right;
+  border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.name:disabled{opacity:.55}
+ul{list-style:none;margin:0;padding:0}
+.row{display:flex;align-items:center;gap:12px;width:100%;padding:11px 2px;border-bottom:1px solid var(--line)}
+.row:disabled{cursor:default;opacity:.75}
+.box{flex-shrink:0;width:26px;height:26px;border-radius:8px;border:1.6px solid var(--line);display:grid;place-items:center}
+.txt{flex:1;text-align:left}
+.txt b{display:block;font-weight:600;font-size:15px}
+.txt span{display:block;font-size:13px;color:var(--mute);margin-top:1px}
+.row.on .txt b{color:var(--mute);text-decoration:line-through}
+.note{margin:14px 0 0;font-size:12.5px;color:var(--mute);line-height:1.6}
+.restmsg{margin:6px 0;font-size:14.5px;color:var(--mute);line-height:1.6}
+.readonly{margin:12px 0 0;font-size:12.5px;color:var(--mute);line-height:1.6}
+
+.panel{margin-top:18px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:14px 14px 12px}
+.panel h3{margin:0 0 4px;font-size:14px;font-weight:700}
+.panel p{margin:0;font-size:12.5px;color:var(--mute);line-height:1.6}
+.panel .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;
+  border:1px solid var(--line);background:var(--paper)}
+.btn.solid{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;
+  letter-spacing:1.5px;word-break:break-all;margin:10px 0 0;font-weight:600}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mute)}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--mute);display:block}
+.status.ok i{background:var(--a)} .status.err i{background:var(--b)}
+.field{width:100%;margin-top:10px;padding:10px;font-size:15px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1px;
+  border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink)}
+.me{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--mute)}
+.me button{padding:6px 12px;border-radius:8px;border:1px solid var(--line);font-size:12.5px;font-weight:600}
+.me button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.settings{margin:16px 2px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--mute)}
+.settings input[type=date]{padding:6px 8px;font-size:12.5px;border:1px solid var(--line);
+  border-radius:8px;background:var(--card);color:var(--ink);font-family:inherit}
+.reset{color:var(--b);font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.foot{margin:16px 2px 0;font-size:12px;color:var(--mute);line-height:1.6}
+@media (prefers-reduced-motion:reduce){.cell{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>4주 시작 프로그램</h1>
+    <p class="sub">근력 월·수·금 · 걷기 화·목 · 토요일은 가볍게 · 일요일은 쉽니다</p>
+  </header>
+
+  <div class="grid" id="grid"></div>
+  <div class="legend" id="legend"></div>
+  <div class="switch" id="switch"></div>
+  <section class="card" id="card"></section>
+  <section class="panel" id="sync"></section>
+
+  <div class="settings">
+    <label>시작일 <input type="date" id="start"></label>
+    <button class="reset" id="reset">이 기기 기록 지우기</button>
+  </div>
+  <p class="foot">세트 사이 60초 휴식 · 무릎이 안쪽으로 모이거나 허리가 말리면 개수를 줄이세요</p>
+</div>
+
+<script src="config.js"></script>
+<script>
+/* ═══ 프로그램 정의 ═══════════════════════════════ */
+const DAY = ["월","화","수","목","금","토","일"];
+const SCHED = ["근력","걷기","근력","걷기","근력","가벼운 걷기","휴식"];
+const WEEKS = [
+ {walk:25, note:"적응기. 개수보다 자세와 출석이 우선입니다.",
+  s:[["스쿼트","10회 × 2세트"],["푸시업","8회 × 2세트 (벽 또는 무릎)"],["힙브릿지","12회 × 2세트"],["플랭크","20초 × 2세트"]]},
+ {walk:30, note:"세트를 늘리는 주. 마지막 2~3개가 힘들면 적정 강도입니다.",
+  s:[["스쿼트","12회 × 3세트"],["푸시업","10회 × 2세트"],["힙브릿지","15회 × 2세트"],["플랭크","30초 × 2세트"]]},
+ {walk:35, note:"템포를 늦춰 자극을 올립니다. 걷기는 인터벌로 바꿔도 좋습니다.",
+  s:[["스쿼트","12회 × 3세트 · 내려가는 데 3초"],["푸시업","10회 × 3세트"],["힙브릿지","15회 × 3세트 (한 다리 8회도 가능)"],["플랭크","40초 × 2세트"]]},
+ {walk:40, note:"마지막 세트가 여유로우면 다음 달엔 무게를 더할 시점입니다.",
+  s:[["스쿼트","15회 × 3세트"],["푸시업","12회 × 3세트"],["힙브릿지","20회 × 3세트"],["플랭크","45초 × 2세트"]]},
+];
+const items = d => {
+  const w = WEEKS[Math.floor(d/7)], k = SCHED[d%7];
+  if(k==="근력") return w.s;
+  if(k==="걷기") return [["빠르게 걷기", w.walk+"분"]];
+  if(k==="가벼운 걷기") return [["가볍게 걷기","20분"]];
+  return [];
+};
+const ACTIVE = [...Array(28).keys()].filter(i => SCHED[i%7] !== "휴식");
+
+/* ═══ 상태 ═══════════════════════════════════════ */
+const KEY = "fit4.v2";          // 기록 (v0.2와 호환)
+const DEVKEY = "fit4.device.v1"; // 이 기기 설정
+const fresh = () => ({A:{name:"",days:{}}, B:{name:"",days:{}}, start:null});
+const freshDev = () => ({room:null, me:"A"});
+
+let S, DEV, who = "A", sel = 0;
+let status = "off";   // off | sync | ok | err
+let joining = false;  // 코드 입력창 표시 여부
+let pushTimer = null, pollTimer = null;
+
+const cfg = () => window.FIT4_CONFIG || {};
+const syncable = () => !!(cfg().SUPABASE_URL && cfg().SUPABASE_ANON_KEY);
+const linked = () => syncable() && !!DEV.room;
+
+function load(){
+  try{ S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || "{}")); }
+  catch{ S = fresh(); }
+  try{ DEV = Object.assign(freshDev(), JSON.parse(localStorage.getItem(DEVKEY) || "{}")); }
+  catch{ DEV = freshDev(); }
+  if(!S.start) S.start = isoMonday(new Date());
+  who = DEV.me;
+}
+function save(){
+  try{
+    localStorage.setItem(KEY, JSON.stringify(S));
+    localStorage.setItem(DEVKEY, JSON.stringify(DEV));
+  }catch{
+    alert("이 기기에 기록을 저장하지 못했습니다. 시크릿 모드에서는 저장되지 않습니다.");
+  }
+}
+function isoMonday(dt){
+  const d = new Date(dt); d.setHours(0,0,0,0);
+  d.setDate(d.getDate() - ((d.getDay()+6)%7));
+  const p = n => String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
+}
+function todayIndex(){
+  const s = new Date(S.start+"T00:00:00"), n = new Date(); n.setHours(0,0,0,0);
+  const diff = Math.round((n-s)/86400000);
+  return (diff>=0 && diff<28) ? diff : -1;
+}
+const ratio = (p,d) => {
+  const t = items(d).length; if(!t) return 0;
+  return (p.days[d]||[]).filter(Boolean).length / t;
+};
+const done = (p,d) => ratio(p,d) === 1;
+const editable = k => !linked() || k === DEV.me;
+
+/* ═══ 동기화 ═════════════════════════════════════ */
+function newCode(){
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 헷갈리는 글자 제외
+  const a = new Uint32Array(16);
+  crypto.getRandomValues(a);
+  return [...a].map(n => abc[n % abc.length]).join("");
+}
+
+async function rpc(fn, body){
+  const url = cfg().SUPABASE_URL.replace(/\/+$/,"") + "/rest/v1/rpc/" + fn;
+  const r = await fetch(url, {
+    method:"POST",
+    headers:{
+      "apikey": cfg().SUPABASE_ANON_KEY,
+      "Authorization": "Bearer " + cfg().SUPABASE_ANON_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if(!r.ok) throw new Error("HTTP " + r.status);
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
+}
+
+/* 상대방 칸은 서버 값을 그대로 받고, 내 칸은 이 기기 것이 우선입니다 */
+function mergeRemote(remote, wholesale){
+  if(!remote) return;
+  if(wholesale){
+    // 방에 처음 들어올 때. 서버 내용을 받되,
+    // 이 폰에서 혼자 체크해둔 내 기록이 있으면 그건 지키고 올립니다.
+    const me = DEV.me, mine = S[me];
+    const hadLocal = !!(mine && (mine.name || Object.keys(mine.days || {}).length));
+    S = Object.assign(fresh(), remote);
+    if(hadLocal) S[me] = mine;
+    if(!S.start) S.start = isoMonday(new Date());
+    return;
+  }
+  const other = DEV.me === "A" ? "B" : "A";
+  if(remote[other]) S[other] = remote[other];
+  if(remote.start) S.start = remote.start;
+}
+
+async function pull(wholesale){
+  if(!linked()) return;
+  setStatus("sync");
+  try{
+    const remote = await rpc("get_board", {p_code: DEV.room});
+    mergeRemote(remote, wholesale);
+    save(); setStatus("ok"); render();
+  }catch(e){
+    setStatus("err"); render();
+  }
+}
+
+async function push(){
+  if(!linked()) return;
+  setStatus("sync"); render();
+  try{
+    // 먼저 최신을 받아 상대 기록을 덮어쓰지 않도록 합칩니다
+    const remote = await rpc("get_board", {p_code: DEV.room});
+    mergeRemote(remote, false);
+    await rpc("put_board", {p_code: DEV.room, p_data: S});
+    save(); setStatus("ok"); render();
+  }catch(e){
+    setStatus("err"); render();
+  }
+}
+
+function queuePush(){
+  if(!linked()) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(push, 800);
+}
+function setStatus(s){ status = s; }
+
+function startPolling(){
+  clearInterval(pollTimer);
+  if(!linked()) return;
+  pollTimer = setInterval(() => { if(!document.hidden) pull(false); }, 30000);
+}
+
+/* ═══ 렌더 ═══════════════════════════════════════ */
+function render(){
+  const t = todayIndex();
+
+  const g = document.getElementById("grid"); g.innerHTML = "";
+  for(let d=0; d<28; d++){
+    const rest = SCHED[d%7] === "휴식";
+    const b = document.createElement("button");
+    b.className = "cell" + (rest?" rest":"") + (d===sel?" sel":"") + (d===t?" today":"");
+    b.setAttribute("aria-label", (Math.floor(d/7)+1)+"주차 "+DAY[d%7]+"요일");
+    b.setAttribute("aria-pressed", d===sel);
+    b.innerHTML = '<span class="d">'+DAY[d%7]+"</span>" + (rest ? "" :
+      '<span class="bars">'
+      + '<i class="bar" style="background:var(--a);opacity:'+(0.12+ratio(S.A,d)*0.88).toFixed(2)+'"></i>'
+      + '<i class="bar" style="background:var(--b);opacity:'+(0.12+ratio(S.B,d)*0.88).toFixed(2)+'"></i>'
+      + "</span>");
+    b.onclick = () => { sel = d; render(); };
+    g.appendChild(b);
+  }
+
+  const nA = S.A.name || "1번", nB = S.B.name || "2번";
+  const cnt = p => ACTIVE.filter(d => done(p,d)).length;
+  document.getElementById("legend").innerHTML =
+    '<span><i class="dot" style="background:var(--a)"></i>'+esc(nA)+" "+cnt(S.A)+"/"+ACTIVE.length+"</span>"
+   +'<span><i class="dot" style="background:var(--b)"></i>'+esc(nB)+" "+cnt(S.B)+"/"+ACTIVE.length+"</span>";
+
+  const sw = document.getElementById("switch"); sw.innerHTML = "";
+  [["A",nA,"var(--a)"],["B",nB,"var(--b)"]].forEach(([k,label,col]) => {
+    const b = document.createElement("button");
+    b.textContent = label + (linked() && k===DEV.me ? " (나)" : "");
+    if(who===k){ b.className = "on"; b.style.background = col; }
+    b.onclick = () => { who = k; jump(); };
+    sw.appendChild(b);
+  });
+
+  renderCard();
+  renderSync();
+  document.getElementById("start").value = S.start;
+}
+
+function renderCard(){
+  const t = todayIndex(), w = Math.floor(sel/7);
+  const list = items(sel), tone = who==="A" ? "var(--a)" : "var(--b)";
+  const chk = S[who].days[sel] || [], can = editable(who);
+  const card = document.getElementById("card");
+
+  card.innerHTML =
+    '<div class="top"><div>'
+    + '<p class="eyebrow">'+(w+1)+"주차 · "+DAY[sel%7]+"요일"+(sel===t?" · 오늘":"")+"</p>"
+    + "<h2>"+SCHED[sel%7]+"</h2></div>"
+    + '<input class="name" id="nm" maxlength="8" placeholder="이름"'+(can?"":" disabled")
+    + ' value="'+esc(S[who].name)+'"></div>';
+
+  if(!list.length){
+    card.insertAdjacentHTML("beforeend",
+      '<p class="restmsg">오늘은 쉬는 날입니다. 회복도 프로그램의 일부입니다.</p>');
+  } else {
+    const ul = document.createElement("ul");
+    list.forEach(([n,dsc],i) => {
+      const on = !!chk[i];
+      const b = document.createElement("button");
+      b.className = "row" + (on?" on":"");
+      b.disabled = !can;
+      b.innerHTML =
+        '<span class="box" style="'+(on?"background:"+tone+";border-color:"+tone:"")+'">'
+        + (on?'<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2.5 7.3l3 3 6-6.6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>':"")
+        + '</span><span class="txt"><b>'+esc(n)+"</b><span>"+esc(dsc)+"</span></span>";
+      b.onclick = () => {
+        const cur = (S[who].days[sel] || []).slice();
+        cur[i] = !cur[i];
+        S[who].days[sel] = cur;
+        save(); queuePush(); render();
+      };
+      const li = document.createElement("li"); li.appendChild(b); ul.appendChild(li);
+    });
+    card.appendChild(ul);
+  }
+  if(!can) card.insertAdjacentHTML("beforeend",
+    '<p class="readonly">상대방 칸입니다. 체크는 상대방 폰에서 하면 여기에도 반영됩니다.</p>');
+  card.insertAdjacentHTML("beforeend", '<p class="note">'+WEEKS[w].note+"</p>");
+
+  const nm = document.getElementById("nm");
+  if(nm && can) nm.oninput = e => {
+    S[who].name = e.target.value.slice(0,8);
+    save(); queuePush();
+  };
+}
+
+function renderSync(){
+  const p = document.getElementById("sync");
+
+  if(!syncable()){
+    p.innerHTML = "<h3>이 기기에만 저장 중</h3>"
+      + "<p>두 폰의 기록을 맞추려면 <code>config.js</code>에 Supabase 주소와 anon 키를 넣으세요. "
+      + "설정 전에도 앱은 그대로 작동합니다.</p>";
+    return;
+  }
+
+  if(!DEV.room){
+    p.innerHTML = "<h3>두 폰 기록 맞추기</h3>"
+      + "<p>한 사람이 방을 만들고, 나온 코드를 상대방이 입력하면 두 기기가 같은 기록을 봅니다.</p>"
+      + '<div class="actions">'
+      + '<button class="btn solid" id="mk">방 만들기</button>'
+      + '<button class="btn" id="jn">'+(joining?"취소":"코드로 참여")+"</button></div>"
+      + (joining
+        ? '<input class="field" id="cd" placeholder="코드 16자리" autocapitalize="characters" autocomplete="off">'
+          + '<div class="actions"><button class="btn solid" id="go">참여하기</button></div>'
+        : "");
+
+    document.getElementById("mk").onclick = async () => {
+      DEV.room = newCode(); DEV.me = "A"; who = "A";
+      save(); await push(); startPolling(); render();
+    };
+    document.getElementById("jn").onclick = () => { joining = !joining; render(); };
+    const go = document.getElementById("go");
+    if(go) go.onclick = async () => {
+      const v = (document.getElementById("cd").value || "").toUpperCase().replace(/[^A-Z0-9]/g,"");
+      if(v.length !== 16){ alert("코드는 16자리입니다. 다시 확인해 주세요."); return; }
+      DEV.room = v; DEV.me = "B"; who = "B"; joining = false;
+      save(); await pull(true); startPolling(); await push(); jump();
+    };
+    return;
+  }
+
+  const label = {off:"연결 안 됨", sync:"맞추는 중", ok:"동기화됨", err:"연결 실패"}[status] || "";
+  p.innerHTML = "<h3>동기화 중</h3>"
+    + '<span class="status '+(status==="ok"?"ok":status==="err"?"err":"")+'"><i></i>'+label+"</span>"
+    + (status==="err" ? "<p>서버에 닿지 못했습니다. 체크는 이 기기에 저장돼 있고, 연결되면 자동으로 올라갑니다.</p>" : "")
+    + '<p class="code">'+esc(DEV.room)+"</p>"
+    + '<div class="actions">'
+    + '<button class="btn" id="cp">코드 복사</button>'
+    + '<button class="btn" id="rf">지금 새로고침</button>'
+    + '<button class="btn" id="ul">연결 끊기</button></div>'
+    + '<div class="me">나는 '
+    + '<button id="mA" class="'+(DEV.me==="A"?"on":"")+'">'+esc(S.A.name||"1번")+"</button>"
+    + '<button id="mB" class="'+(DEV.me==="B"?"on":"")+'">'+esc(S.B.name||"2번")+"</button></div>";
+
+  document.getElementById("cp").onclick = async () => {
+    try{ await navigator.clipboard.writeText(DEV.room); alert("코드를 복사했습니다."); }
+    catch{ alert("복사하지 못했습니다. 코드를 길게 눌러 직접 선택해 주세요."); }
+  };
+  document.getElementById("rf").onclick = () => pull(false);
+  document.getElementById("ul").onclick = () => {
+    if(confirm("이 기기의 연결을 끊습니다. 기록은 서버와 이 기기에 그대로 남습니다.")){
+      DEV.room = null; save(); clearInterval(pollTimer); setStatus("off"); render();
+    }
+  };
+  document.getElementById("mA").onclick = () => { DEV.me="A"; who="A"; save(); jump(); };
+  document.getElementById("mB").onclick = () => { DEV.me="B"; who="B"; save(); jump(); };
+}
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function jump(){
+  const t = todayIndex();
+  sel = (t >= 0 && SCHED[t%7] !== "휴식" && !done(S[who], t))
+      ? t : (ACTIVE.find(d => !done(S[who], d)) ?? 27);
+  render();
+}
+
+/* ═══ 이벤트 ═════════════════════════════════════ */
+document.getElementById("start").onchange = e => {
+  if(!e.target.value) return;
+  S.start = isoMonday(e.target.value + "T00:00:00");
+  save(); queuePush(); jump();
+};
+document.getElementById("reset").onclick = () => {
+  if(!confirm("이 기기의 기록을 지웁니다. 되돌릴 수 없습니다.")) return;
+  S = fresh(); S.start = isoMonday(new Date());
+  save(); queuePush(); who = DEV.me; jump();
+};
+document.addEventListener("visibilitychange", () => { if(!document.hidden) pull(false); });
+window.addEventListener("online", () => pull(false));
+
+load();
+jump();
+if(linked()){ pull(false); startPolling(); }
+
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
