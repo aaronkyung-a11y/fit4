@@ -1,4 +1,4 @@
-const CACHE = "fit4-v0.3";
+const CACHE = "fit4-v0.4";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./config.js", "./icon-192.png", "./icon-512.png", "./icon-180.png"];
 
 self.addEventListener("install", e => {
