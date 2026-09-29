@@ -1,7 +1,7 @@
 {
-  "name": "8주 시작 프로그램",
-  "short_name": "8주 운동",
-  "description": "운동을 처음 시작하는 두 사람을 위한 8주 체크리스트",
+  "name": "10주 시작 프로그램",
+  "short_name": "10주 운동",
+  "description": "운동을 처음 시작하는 두 사람을 위한 10주 체크리스트 (도구 없이 맨몸)",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
