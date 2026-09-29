@@ -2,7 +2,7 @@
    HTML과 config.js는 네트워크 우선 — 새 버전이 나오면 바로 반영됩니다.
    (캐시 우선으로 두면 폰에 옛날 화면이 계속 떠서 버전이 고정됩니다)
    아이콘·매니페스트는 캐시 우선 — 잘 바뀌지 않고 용량이 큽니다. */
-const CACHE = "fit4-v0.9";
+const CACHE = "fit4-v1.0";
 const ASSETS = ["./", "./index.html", "./config.js", "./manifest.webmanifest",
                 "./icon-192.png", "./icon-512.png", "./icon-180.png"];
 
