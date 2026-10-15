@@ -1,16 +1,16 @@
-<!-- fit4 — 4주 시작 프로그램 · v1.0 · 2026-09-04 -->
+<!-- fit4 — 4주 시작 프로그램 · v1.1 · 2026-10-16 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>10주 시작 프로그램</title>
+<title>12주 시작 프로그램</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#EDEFE9">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="10주 운동">
+<meta name="apple-mobile-web-app-title" content="12주 운동">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -36,7 +36,7 @@ h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.8px}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .phase{margin:16px 2px 7px;font-size:11.5px;font-weight:700;color:var(--mute);letter-spacing:.2px}
 .phase:first-of-type{margin-top:20px}
-.cell{position:relative;height:46px;border-radius:8px;display:flex;flex-direction:column;
+.cell{position:relative;height:43px;border-radius:8px;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:5px;
   background:var(--card);border:1px solid var(--line);transition:transform .12s ease}
 .cell:active{transform:scale(.93)}
@@ -125,13 +125,13 @@ ul{list-style:none;margin:0;padding:0}
 <body>
 <div class="wrap">
   <header>
-    <h1>10주 시작 프로그램</h1>
+    <h1>12주 시작 프로그램</h1>
     <p class="sub">근력 월·수·금 · 걷기 화·목 · 토요일은 가볍게 · 일요일은 쉽니다</p>
   </header>
 
-  <p class="phase">1–6주 · 적응기</p>
+  <p class="phase">1–8주 · 적응기</p>
   <div class="grid" id="grid1"></div>
-  <p class="phase">7–10주 · 강화기 (도구 없음)</p>
+  <p class="phase">9–12주 · 강화기 (도구 없음)</p>
   <div class="grid" id="grid2"></div>
   <div class="legend" id="legend"></div>
   <div class="switch" id="switch"></div>
@@ -163,14 +163,14 @@ ul{list-style:none;margin:0;padding:0}
 
 <script src="config.js"></script>
 <script>
-const APP_VERSION = "1.0";
-const APP_DATE = "2026-09-04";
+const APP_VERSION = "1.1";
+const APP_DATE = "2026-10-16";
 
 /* ═══ 프로그램 정의 ═══════════════════════════════ */
 const DAY = ["월","화","수","목","금","토","일"];
 const SCHED = ["근력","걷기","근력","걷기","근력","가벼운 걷기","휴식"];
 const WEEKS = [
- /* ── 1~6주 적응기 ── 도구 없이 개수와 시간만 늘립니다 ── */
+ /* ── 1~8주 적응기 ── 도구 없이 개수와 시간만 늘립니다 ── */
  {walk:25, note:"적응기. 개수보다 자세와 출석이 우선입니다.",
   s:[["스쿼트","10회 × 2세트"],["푸시업","8회 × 2세트 (벽 또는 무릎)"],["힙브릿지","12회 × 2세트"],["플랭크","20초 × 2세트"]]},
  {walk:30, note:"세트를 늘리는 주. 마지막 2~3개가 힘들면 적정 강도입니다.",
@@ -181,16 +181,20 @@ const WEEKS = [
   s:[["스쿼트","내려가는 데 3초 · 15회 × 3세트"],["푸시업","12회 × 3세트"],["힙브릿지","20회 × 3세트"],["플랭크","45초 × 2세트"]]},
  {walk:40, note:"절반 지점. 1주차보다 확실히 수월해졌다면 잘 가고 있는 겁니다.",
   s:[["스쿼트","내려가는 데 3초 · 18회 × 3세트"],["푸시업","14회 × 3세트"],["힙브릿지","22회 × 3세트"],["플랭크","50초 × 2세트"]]},
- {walk:45, note:"적응기 마지막 주. 다음 주부터 동작 방식이 조금씩 바뀝니다. 도구는 여전히 필요 없습니다.",
+ {walk:45, note:"절반을 넘었습니다. 적응기는 2주 더 이어집니다.",
   s:[["스쿼트","내려가는 데 3초 · 20회 × 3세트"],["푸시업","15회 × 3세트"],["힙브릿지","25회 × 3세트"],["플랭크","60초 × 2세트"]]},
+ {walk:45, note:"새 동작은 없습니다. 3초 템포를 유지한 채 개수만 늘립니다.",
+  s:[["스쿼트","내려가는 데 3초 · 22회 × 3세트"],["푸시업","16회 × 3세트"],["힙브릿지","28회 × 3세트"],["플랭크","70초 × 2세트"]]},
+ {walk:45, note:"적응기 마지막 주. 1주차와 비교하면 스쿼트는 2.5배, 플랭크는 4배가 됐습니다. 다음 주부터 동작 방식이 조금씩 바뀝니다.",
+  s:[["스쿼트","내려가는 데 3초 · 25회 × 3세트"],["푸시업","18회 × 3세트"],["힙브릿지","30회 × 3세트"],["플랭크","75초 × 2세트"]]},
 
- /* ── 7~10주 강화기 ── 무게 대신 방식을 바꿔 강도를 올립니다 ── */
+ /* ── 9~12주 강화기 ── 무게 대신 방식을 바꿔 강도를 올립니다 ── */
  {walk:45, note:"이번 주는 스쿼트만 바뀝니다. 가장 낮은 지점에서 2초 멈췄다 올라오세요. 반동이 사라져서 개수가 줄어드는 게 정상입니다.",
-  s:[["스쿼트","바닥에서 2초 멈춤 · 12회 × 3세트"],["푸시업","15회 × 3세트"],["힙브릿지","25회 × 3세트"],["플랭크","60초 × 2세트"]]},
+  s:[["스쿼트","바닥에서 2초 멈춤 · 12회 × 3세트"],["푸시업","18회 × 3세트"],["힙브릿지","30회 × 3세트"],["플랭크","75초 × 2세트"]]},
  {walk:45, note:"이번 주는 푸시업 자세만 한 단계 올립니다. 벽에서 했으면 무릎으로, 무릎이었으면 정자세로. 개수가 확 줄어드는 게 그래서입니다.",
-  s:[["스쿼트","바닥에서 2초 멈춤 · 15회 × 3세트"],["푸시업","8회 × 3세트"],["힙브릿지","25회 × 3세트"],["플랭크","60초 × 2세트"]]},
+  s:[["스쿼트","바닥에서 2초 멈춤 · 15회 × 3세트"],["푸시업","8회 × 3세트"],["힙브릿지","30회 × 3세트"],["플랭크","75초 × 2세트"]]},
  {walk:50, note:"이번 주는 힙브릿지를 한 다리로 바꿉니다. 엉덩이에 훨씬 강하게 들어옵니다.",
-  s:[["스쿼트","바닥에서 2초 멈춤 · 18회 × 3세트"],["푸시업","10회 × 3세트"],["힙브릿지","한 다리 10회 × 3세트"],["플랭크","60초 × 2세트"]]},
+  s:[["스쿼트","바닥에서 2초 멈춤 · 18회 × 3세트"],["푸시업","10회 × 3세트"],["힙브릿지","한 다리 10회 × 3세트"],["플랭크","75초 × 2세트"]]},
  {walk:50, note:"마지막 주. 플랭크만 옆으로 바꿉니다. 여기까지 끝내면 헬스장 기구나 케틀벨로 넘어갈 준비가 된 겁니다.",
   s:[["스쿼트","바닥에서 2초 멈춤 · 20회 × 3세트"],["푸시업","12회 × 3세트"],["힙브릿지","한 다리 15회 × 3세트"],["사이드 플랭크","한쪽 30초 × 2세트"]]},
 ];
@@ -198,8 +202,8 @@ const TOTAL = WEEKS.length * 7;   // 56일
 const items = d => {
   const w = WEEKS[Math.floor(d/7)], k = SCHED[d%7];
   if(k==="근력") return w.s;
-  if(k==="걷기") return [["빠르게 걷기", w.walk+"분" + (Math.floor(d/7)>=6 ? " (자전거·수영 대체 가능)" : "")]];
-  if(k==="가벼운 걷기") return [["가볍게 걷기", Math.floor(d/7)>=6 ? "30분" : "20분"]];
+  if(k==="걷기") return [["빠르게 걷기", w.walk+"분" + (Math.floor(d/7)>=8 ? " (자전거·수영 대체 가능)" : "")]];
+  if(k==="가벼운 걷기") return [["가볍게 걷기", Math.floor(d/7)>=8 ? "30분" : "20분"]];
   return [];
 };
 const ACTIVE = [...Array(TOTAL).keys()].filter(i => SCHED[i%7] !== "휴식");
@@ -365,7 +369,7 @@ function render(){
       + '<i class="bar" style="background:var(--b);opacity:'+(0.12+ratio(S.B,d)*0.88).toFixed(2)+'"></i>'
       + "</span>");
     b.onclick = () => { sel = d; render(); };
-    (d < 42 ? g1 : g2).appendChild(b);
+    (d < 56 ? g1 : g2).appendChild(b);
   }
 
   const nA = S.A.name || "1번", nB = S.B.name || "2번";
@@ -389,7 +393,7 @@ function render(){
   document.getElementById("startbig").textContent = fmt(dateOf(0)) + " (월)";
   const ti = todayIndex();
   const where = ti < 0
-    ? (new Date() < dateOf(0) ? "아직 시작 전입니다" : "10주가 지났습니다")
+    ? (new Date() < dateOf(0) ? "아직 시작 전입니다" : "12주가 지났습니다")
     : "오늘은 " + (Math.floor(ti/7)+1) + "주차 " + DAY[ti%7] + "요일";
   document.getElementById("range").textContent =
     fmt(dateOf(0)) + " – " + fmt(dateOf(TOTAL-1)) + " · " + where;
@@ -432,7 +436,7 @@ function renderCard(){
     });
     card.appendChild(ul);
   }
-  if(Math.floor(sel/7) >= 6 && SCHED[sel%7] === "근력")
+  if(Math.floor(sel/7) >= 8 && SCHED[sel%7] === "근력")
     card.insertAdjacentHTML("beforeend",
       '<p class="gear">강화기도 <b>도구 없이 맨몸으로</b> 합니다. 무게 대신 멈춤·한 다리로 강도를 올립니다.<br>'
       + '이번 주가 버겁다면 <b>이전 주를 한 주 더 반복해도 됩니다.</b> 한 주 늦는 것보다 폼이 무너지는 쪽이 손해입니다.</p>');
